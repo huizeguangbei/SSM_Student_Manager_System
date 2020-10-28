@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="StudentNS">
+    
+    <resultMap id="studentResultMap" type="Student">
+        <id property="sid" column="sid" />
+        <result property="name" column="name" />
+        <result property="age" column="age" />
+        <result property="sex" column="sex" />
+        <result property="address" column="address" />
+        <association property="classes" column="cid" javaType="Classes" resultMap="classesNS.classesResultMap"/>
+    </resultMap>
+
+    <!--实现数据增加操作-->
+    <insert id="doCreate" parameterType="Student">
+        INSERT INTO student(sid,name,age,sex,address,cid)VALUES (#{sid},#{name},#{age},#{sex},#{address},#{classes.cid})
+    </insert>
+
+    <!-- 实现数据更新操作 -->
+    <update id="doUpdate" parameterType="Student">
+        UPDATE student SET name=#{name},age=#{age},sex=#{sex},address=#{address},cid=#{classes.cid} WHERE sid=#{sid}
+    </update>
+
+    <!-- 删除数据操作 -->
+    <delete id="doRemove" parameterType="java.util.List">
+        DELETE FROM student
+        <where>
+            sid IN
+            <foreach collection="list" item="ele" open="(" close=")" separator=",">
+                '${ele}'
+            </foreach>
+        </where>
+    </delete>
+
+    <!-- 编写分页操作 -->
+    <select id="findBySplit" parameterType="java.util.Map" resultMap="studentResultMap">
+        SELECT sid,name,age,sex,address,cid FROM student LIMIT ${start},#{lineSize}
+    </select>
+
+    <!-- 统计全部数据量 -->
+    <select id="getAllCount" parameterType="java.util.Map" resultType="Integer">
+        SELECT COUNT(sid) FROM student
+    </select>
+
+</mapper>
